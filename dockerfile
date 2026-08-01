@@ -11,13 +11,15 @@ COPY ./src ./src
 COPY package*.json ./
 
 RUN npm install
-RUN npm prune --production && node-prune
+#RUN npm prune --production && node-prune
 
 #----------------RELEASE-----------------
-FROM node:20-alpine3.18 AS release
+FROM node:26-alpine3.23 AS release
 RUN apk add dumb-init
 
-COPY --from=builder /app/ ./
+USER node 
+
+COPY --chown=node:node --from=builder /app/ ./
 
 ARG APP_ENV
 ENV APP_ENV=${APP_ENV}
