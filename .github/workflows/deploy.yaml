@@ -87,7 +87,7 @@ jobs:
 
   security-SNYK:
     name: Snyk Docker Security Scan
-    needs: codeScan
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
