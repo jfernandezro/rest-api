@@ -22,8 +22,10 @@ jobs:
 
       - name: run api
         run: |
-          npm install
-          npm run dev&
+          npm install --legacy-peer-deps
+          npm run dev > api.log 2>&1 &
+          sleep 10
+          curl http://localhost:3000/search?q=123
 
       - name: ZAP Scan
         uses: zaproxy/action-api-scan@v0.10.0
