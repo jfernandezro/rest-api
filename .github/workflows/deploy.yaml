@@ -3,7 +3,7 @@ name: deploy
 on:
   push:
     branches:
-      - main-x
+      - main
 
 env:
   DOCKER_REGISTRY: docker.io
@@ -35,6 +35,35 @@ jobs:
           build-args: |
             APP_ENV=${{ secrets.APP_ENV }}
           tags: ${{ env.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+
+  loadTest:
+    name: Load Testing
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout code
+
+      - name: Set up
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          npm install -g artillery
+          npm install --save-dev artillery-plugin-ensure
+
+      - name: Run container
+        run: |
+          docker run -d --name rest-api -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Run Load Test
+        run: |
+          set -e  # Detiene el workflow si la prueba de carga falla.
+
+          artillery run loadTest/basic.yaml || exit 1
 
   test:
     name: Run tests
@@ -93,7 +122,7 @@ jobs:
     steps:
       - name: Run Snyk to check Docker image for vulnerabilities
         uses: snyk/actions/docker@master
-        continue-on-error: true        
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
