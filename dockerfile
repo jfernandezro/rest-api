@@ -10,14 +10,14 @@ FROM base AS builder
 COPY ./src ./src
 COPY package*.json ./
 
-RUN npm install
+RUN npm install --legacy-peer-deps
 #RUN npm prune --production && node-prune
 
 #----------------RELEASE-----------------
 FROM node:26-alpine3.23 AS release
 RUN apk add dumb-init
 
-USER node 
+USER node
 
 COPY --chown=node:node --from=builder /app/ ./
 
