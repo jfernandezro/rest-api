@@ -42,10 +42,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-        name: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -53,7 +53,7 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install -g artillery
-          npm install --save-dev artillery-plugin-ensure
+          npm install --save-dev artillery-plugin-ensure --legacy-peer-deps
 
       - name: Run container
         run: |
@@ -62,7 +62,7 @@ jobs:
       - name: Run Load Test
         run: |
           set -e
-          artillery run loadTest/basic.yaml || exit 1
+          artillery run loadTest/basic.yaml
 
   test:
     name: Run tests
@@ -70,7 +70,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Configurar Node.js
         uses: actions/setup-node@v4
